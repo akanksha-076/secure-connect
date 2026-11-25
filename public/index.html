@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Chat Test</title></head>
+<body>
+  <h3>Secure Chat</h3>
+  <input id="token" placeholder="Paste JWT token here" size="60">
+  <button onclick="connect()">Connect</button>
+  <ul id="messages"></ul>
+  <input id="msg" placeholder="Type message">
+  <button onclick="send()">Send</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket;
+    function connect() {
+      socket = io({ auth: { token: document.getElementById('token').value } });
+      socket.on('connect', () => socket.emit('joinRoom', 'general'));
+      socket.on('chatMessage', (d) => {
+        const li = document.createElement('li');
+        li.textContent = d.user + ': ' + d.message;
+        document.getElementById('messages').appendChild(li);
+      });
+      socket.on('connect_error', (e) => alert(e.message));
+    }
+    function send() {
+      socket.emit('chatMessage', { room: 'general', message: document.getElementById('msg').value });
+    }
+  </script>
+</body>
+</html>
